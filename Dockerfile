@@ -1,19 +1,14 @@
-FROM maven:3.8.4-openjdk-21 AS build
-
+FROM maven:3.9.7-eclipse-temurin-21-alpine AS build
 WORKDIR /app
+COPY . .
+RUN mvn clean install
 
-COPY pom.xml .
-COPY src ./src
-
-RUN mvn clean package
-
-FROM eclipse-temurin:21
-
-RUN mkdir /opt/app
-
-COPY --from=build /app/target/auth-server-0.0.1-SNAPSHOT.jar /opt/app/auth-server.jar
-
-EXPOSE 9000
-
-CMD ["java", "-jar", "/opt/app/auth-server.jar"]
+#
+# Package stage
+#
+FROM eclipse-temurin:21-jdk-alpine
+WORKDIR /app
+COPY --from=build /app/target/auth-server-0.0.1-SNAPSHOT.jar auth-server.jar
+EXPOSE 8080
+ENTRYPOINT ["java","-jar","auth-server.jar"]
 
