@@ -51,6 +51,10 @@ public class SecurityConfig {
   private final EcUserRepository ecUserRepository;
   @Value("${SECRET_KEY}")
   String secretKey;
+  @Value("${REDIRECT_URI}")
+  String redirectUri;
+  @Value("${LOGOUT_URI}")
+  String logoutUri;
 
   @Bean
   @Order(1)
@@ -108,8 +112,8 @@ public class SecurityConfig {
         .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
         .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
         .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
-        .redirectUri("http://127.0.0.1:8080/api/v1/authorized")
-        .postLogoutRedirectUri("http://127.0.0.1:8080/")
+        .redirectUri(redirectUri)
+        .postLogoutRedirectUri(logoutUri)
         .scope(OidcScopes.OPENID)
         .scope(OidcScopes.PROFILE)
         .scope("offline_access")
