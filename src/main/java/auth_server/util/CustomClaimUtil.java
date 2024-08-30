@@ -23,7 +23,7 @@ public class CustomClaimUtil implements OAuth2TokenCustomizer<JwtEncodingContext
       EcUserModel user = ecUserRepository.findByUsername(context.getPrincipal().getName())
           .orElseThrow(() -> new UserIdNotFoundException("User not found"));
 
-      context.getClaims().claim("user_name", user.getUsername());
+      context.getClaims().claim("username", user.getUsername());
       context.getClaims().claim("user_id", user.getUserId());
       context.getClaims().claim("role", user.getUserRole().getRoleDescription());
     }
