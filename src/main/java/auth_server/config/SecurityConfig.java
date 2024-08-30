@@ -51,6 +51,10 @@ public class SecurityConfig {
   private final EcUserRepository ecUserRepository;
   @Value("${SECRET_KEY}")
   String secretKey;
+  @Value("${REDIRECT_URI}")
+  String redirectUri;
+  @Value("${LOGOUT_URI}")
+  String logoutUri;
 
   @Bean
   @Order(1)
