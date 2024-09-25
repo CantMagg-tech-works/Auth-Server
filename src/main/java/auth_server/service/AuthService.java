@@ -1,11 +1,10 @@
 package auth_server.service;
 
-import auth_server.dtos.request.RequestLogin;
-import auth_server.dtos.response.ResponseToken;
+import auth_server.dtos.request.RequestRegister;
 
 public interface AuthService {
 
-  String register(RequestLogin request);
+  String register(RequestRegister request);
 
 
 }

@@ -1,4 +1,4 @@
-package auth_server.dtos.request;
+package auth_server.dtos.response;
 
 import java.io.Serializable;
 import lombok.AllArgsConstructor;
@@ -8,10 +8,12 @@ import lombok.NoArgsConstructor;
 
 @Data
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
-public class RequestRefreshToken implements Serializable {
+@NoArgsConstructor
+public class ErrorDTO implements Serializable {
 
-  String refreshToken;
+  private String code;
+  private String message;
+  private Integer status;
 
 }

@@ -1,5 +1,6 @@
 package auth_server.service.imp;
 
+import auth_server.enums.AuthError;
 import auth_server.repository.EcUserRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,6 @@ public class UserDetailImp implements UserDetailsService {
         .map(user -> new User(user.getUsername(),
             user.getPassword(),
             List.of(new SimpleGrantedAuthority(user.getUserRole().getRoleDescription()))))
-        .orElseThrow(() -> new UsernameNotFoundException("user not found"));
+        .orElseThrow(() -> new UsernameNotFoundException(AuthError.AUTH_ERROR_1.getDescription()));
   }
 }
