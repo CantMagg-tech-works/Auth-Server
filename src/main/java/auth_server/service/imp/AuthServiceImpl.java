@@ -1,7 +1,8 @@
 package auth_server.service.imp;
 
-import auth_server.dtos.request.RequestLogin;
+import auth_server.dtos.request.RequestRegister;
 import auth_server.enums.AuthError;
+import auth_server.enums.AuthMessage;
 import auth_server.exception.IdRoleNotFoundException;
 import auth_server.exception.RepeatUserException;
 import auth_server.model.EcUserModel;
@@ -16,7 +17,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class AuthServiceImplement implements AuthService {
+public class AuthServiceImpl implements AuthService {
 
   private final EcUserRepository ecUserRepository;
   private final UserRoleRepository userRoleRepository;
@@ -24,7 +25,7 @@ public class AuthServiceImplement implements AuthService {
 
 
   @Override
-  public String register(RequestLogin request) {
+  public String register(RequestRegister request) {
     if (Boolean.TRUE.equals(ecUserRepository.existsByUsername(request.getEmail()))) {
       throw RepeatUserException
           .builder()
@@ -39,14 +40,14 @@ public class AuthServiceImplement implements AuthService {
 
     EcUserModel userModel = EcUserModel
         .builder()
-        .username(request.getEmail())
+        .username(request.getEmail().trim())
         .password(passwordEncoder.encode(request.getPassword()))
         .userRole(userRoleModel)
         .creationDate(new Date())
         .build();
     ecUserRepository.save(userModel);
 
-    return "User created successfully";
+    return AuthMessage.AUTH_MESSAGES_1.getDescription();
   }
 
 }

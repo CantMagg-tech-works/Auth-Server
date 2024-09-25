@@ -81,7 +81,11 @@ public class SecurityConfig {
       throws Exception {
     http
         .authorizeHttpRequests(authorize -> authorize
-            .requestMatchers("/api/v1/auths/register").permitAll()
+            .requestMatchers("/api/v1/auths/register",
+                "/error",
+                "/swagger-ui/**",
+                "/v3/api-docs",
+                "/v3/api-docs/**").permitAll()
             .anyRequest().authenticated()
         )
         .csrf(AbstractHttpConfigurer::disable)

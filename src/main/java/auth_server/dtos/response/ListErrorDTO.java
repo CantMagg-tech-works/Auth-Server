@@ -1,6 +1,7 @@
 package auth_server.dtos.response;
 
 import java.io.Serializable;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -8,12 +9,10 @@ import lombok.NoArgsConstructor;
 
 @Data
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
-public class ResponseToken implements Serializable {
+@NoArgsConstructor
+public class ListErrorDTO implements Serializable {
 
-  private String accessToken;
-  private Long accessTokenExpireTime;
-  private String refreshToken;
-  private Long refreshTokenExpireTime;
+  private ErrorDTO error;
+  private List<String> errors;
 }
