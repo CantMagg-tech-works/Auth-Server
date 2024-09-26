@@ -1,0 +1,36 @@
+spring:
+  application:
+    name: auth-server
+
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+server:
+  port: ${PORT}
+
+secret:
+  key: ${SECRET_KEY}
+
+redirect:
+  url: ${REDIRECT_URI}
+
+logout:
+  url: ${LOGOUT_URI}
+
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG
+
+flyway:
+  schemas: auth_server
+  table: flyway_schema_history_auth-server
