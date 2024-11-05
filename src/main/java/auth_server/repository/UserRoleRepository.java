@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-public interface UserRoleRepository extends JpaRepository<UserRoleModel, UUID> {
+public interface UserRoleRepository extends JpaRepository<UserRoleModel, Long> {
 
   @Query("SELECT u FROM UserRoleModel u WHERE u.roleDescription = :role")
   Optional<UserRoleModel> findByRoleDescription(@Param("role") String role);

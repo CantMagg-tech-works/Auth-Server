@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-public interface EcUserRepository extends JpaRepository<EcUserModel, UUID> {
+public interface EcUserRepository extends JpaRepository<EcUserModel, Long> {
 
   Boolean existsByUsername(String email);
 

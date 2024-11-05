@@ -1,4 +1,4 @@
-package auth_server.util;
+package auth_server.config.security;
 
 import auth_server.enums.AuthError;
 import auth_server.model.EcUserModel;
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class CustomClaimUtil implements OAuth2TokenCustomizer<JwtEncodingContext> {
+public class CustomClaimCustomizer implements OAuth2TokenCustomizer<JwtEncodingContext> {
 
   private final EcUserRepository ecUserRepository;
 
@@ -23,9 +23,10 @@ public class CustomClaimUtil implements OAuth2TokenCustomizer<JwtEncodingContext
 
       EcUserModel user = ecUserRepository.findByUsername(context.getPrincipal().getName())
           .orElseThrow(
-              () -> new UsernameNotFoundException(AuthError.AUTH_ERROR_1.getDescription()));
+              () -> new UsernameNotFoundException(AuthError.AUTH_ERROR_0001.getDescription()));
 
-      context.getClaims().claim("user_id", user.getUserId());
+
+      context.getClaims().claim("user_id", user.getUserId().toString());
       context.getClaims().claim("role", user.getUserRole().getRoleDescription());
       context.getClaims().claim("email", user.getUsername());
     }

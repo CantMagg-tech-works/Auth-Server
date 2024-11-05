@@ -1,7 +1,5 @@
-package auth_server.config;
+package auth_server.config.security;
 
-import auth_server.repository.EcUserRepository;
-import auth_server.service.imp.UserDetailImp;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
@@ -12,26 +10,27 @@ import java.security.KeyPairGenerator;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.UUID;
+import javax.sql.DataSource;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.server.authorization.client.InMemoryRegisteredClientRepository;
+import org.springframework.security.oauth2.server.authorization.JdbcOAuth2AuthorizationService;
+import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
+import org.springframework.security.oauth2.server.authorization.client.JdbcRegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
@@ -47,8 +46,6 @@ import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-  private final UserDetailImp userDetailImp;
-  private final EcUserRepository ecUserRepository;
   @Value("${SECRET_KEY}")
   String secretKey;
   @Value("${REDIRECT_URI}")
@@ -65,7 +62,7 @@ public class SecurityConfig {
         .oidc(Customizer.withDefaults());
     http.exceptionHandling(exceptions -> exceptions
             .defaultAuthenticationEntryPointFor(
-                new LoginUrlAuthenticationEntryPoint("/login"),
+                new LoginUrlAuthenticationEntryPoint("http://localhost:3000/login"),
                 new MediaTypeRequestMatcher(MediaType.TEXT_HTML)
             )
         )
@@ -82,6 +79,7 @@ public class SecurityConfig {
     http
         .authorizeHttpRequests(authorize -> authorize
             .requestMatchers("/api/v1/auths/register",
+                "/api/v1/auths/exchange-token",
                 "/error",
                 "/swagger-ui/**",
                 "/v3/api-docs",
@@ -89,45 +87,44 @@ public class SecurityConfig {
             .anyRequest().authenticated()
         )
         .csrf(AbstractHttpConfigurer::disable)
-        .formLogin(Customizer.withDefaults())
-        .authenticationProvider(authenticationProvider());
+        .formLogin(form -> form
+            .loginPage("http://localhost:3000/login")
+            .loginProcessingUrl("/login")
+            .failureUrl("http://localhost:3000/login?error=true")
+            .permitAll());
 
     return http.build();
   }
 
-  @Bean
-  public UserDetailsService userDetailsService() {
-    return userDetailImp;
-  }
 
   @Bean
-  public AuthenticationProvider authenticationProvider() {
-    DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-    authProvider.setUserDetailsService(userDetailsService());
-    authProvider.setPasswordEncoder(passwordEncoder());
-    return authProvider;
-  }
+  public RegisteredClientRepository registeredClientRepository(DataSource dataSource) {
 
-  @Bean
-  public RegisteredClientRepository registeredClientRepository() {
-    RegisteredClient oidcClient = RegisteredClient.withId(UUID.randomUUID().toString())
-        .clientId("users-client")
-        .clientSecret(passwordEncoder().encode(secretKey))
-        .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-        .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-        .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
-        .redirectUri(redirectUri)
-        .postLogoutRedirectUri(logoutUri)
-        .scope(OidcScopes.OPENID)
-        .scope(OidcScopes.PROFILE)
-        .scope("offline_access")
-        .clientSettings(ClientSettings.builder()
-            .requireAuthorizationConsent(false)
-            .requireProofKey(true)
-            .build())
-        .build();
+    JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+    JdbcRegisteredClientRepository clientRepository = new JdbcRegisteredClientRepository(
+        jdbcTemplate);
 
-    return new InMemoryRegisteredClientRepository(oidcClient);
+    if (clientRepository.findByClientId("users-client") == null) {
+      RegisteredClient oidcClient = RegisteredClient.withId(UUID.randomUUID().toString())
+          .clientId("users-client")
+          .clientSecret(passwordEncoder().encode(secretKey))
+          .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+          .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+          .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
+          .redirectUri(redirectUri)
+          .postLogoutRedirectUri(logoutUri)
+          .scope(OidcScopes.OPENID)
+          .scope(OidcScopes.PROFILE)
+          .scope("offline_access")
+          .clientSettings(ClientSettings.builder()
+              .requireAuthorizationConsent(false)
+              .requireProofKey(true)
+              .build())
+          .build();
+
+      clientRepository.save(oidcClient);
+    }
+    return clientRepository;
   }
 
   @Bean
@@ -171,4 +168,12 @@ public class SecurityConfig {
   }
 
 
+  @Bean
+  public OAuth2AuthorizationService oAuth2AuthorizationService(
+      DataSource dataSource,
+      RegisteredClientRepository registeredClientRepository) {
+
+    JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+    return new JdbcOAuth2AuthorizationService(jdbcTemplate, registeredClientRepository);
+  }
 }

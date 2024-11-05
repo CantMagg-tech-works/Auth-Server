@@ -1,7 +1,7 @@
 SET search_path TO auth_server;
 
 CREATE TABLE IF NOT EXISTS ec_user (
-    user_id       UUID PRIMARY KEY,
+    user_id       SERIAL PRIMARY KEY,
     user_role_id INTEGER       NOT NULL,
     username      VARCHAR(255) NOT NULL,
     password      VARCHAR(255) NOT NULL,

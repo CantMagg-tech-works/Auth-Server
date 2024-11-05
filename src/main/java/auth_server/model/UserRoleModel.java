@@ -15,7 +15,7 @@ public class UserRoleModel {
 
   @Id
   @Column(name = "user_role_id")
-  private Integer userRoleId;
+  private Long userRoleId;
   @Column(name = "role_description")
   private String roleDescription;
 }
