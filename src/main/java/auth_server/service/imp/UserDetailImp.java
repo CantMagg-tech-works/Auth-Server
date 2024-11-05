@@ -24,6 +24,6 @@ public class UserDetailImp implements UserDetailsService {
         .map(user -> new User(user.getUsername(),
             user.getPassword(),
             List.of(new SimpleGrantedAuthority(user.getUserRole().getRoleDescription()))))
-        .orElseThrow(() -> new UsernameNotFoundException(AuthError.AUTH_ERROR_1.getDescription()));
+        .orElseThrow(() -> new UsernameNotFoundException(AuthError.AUTH_ERROR_0001.getDescription()));
   }
 }

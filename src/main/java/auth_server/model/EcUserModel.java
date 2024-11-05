@@ -26,9 +26,9 @@ import lombok.Setter;
 public class EcUserModel {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.UUID)
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "user_id")
-  private UUID userId;
+  private Long userId;
   @Column(name = "username")
   private String username;
   @Column(name = "password")

@@ -1,10 +1,16 @@
 package auth_server.controller;
 
+import auth_server.dtos.request.ExchangeTokenRequestDTO;
 import auth_server.dtos.request.RequestRegister;
+import auth_server.dtos.response.TokenResponse;
 import auth_server.service.imp.AuthServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,9 +24,16 @@ public class AuthController {
 
   private final AuthServiceImpl authServiceImp;
 
+
   @PostMapping("/register")
-  public String register(@Valid @RequestBody RequestRegister request) {
+  public String register(@Valid @ModelAttribute RequestRegister request) {
     return authServiceImp.register(request);
+  }
+
+  @GetMapping("/exchange-token")
+  public ResponseEntity<TokenResponse> exchangeToken(@Valid @RequestBody ExchangeTokenRequestDTO exchangeTokenRequestDTO) {
+    return ResponseEntity.status(HttpStatus.OK).body(authServiceImp.exchangeToken(exchangeTokenRequestDTO.getCode(),
+        exchangeTokenRequestDTO.getCodeVerifier()));
   }
 
 }

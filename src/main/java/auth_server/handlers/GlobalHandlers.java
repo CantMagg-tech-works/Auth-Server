@@ -21,11 +21,11 @@ public class GlobalHandlers {
 
   @ExceptionHandler(IdRoleNotFoundException.class)
   public ResponseEntity<ErrorDTO> idRoleNotFoundHandler(IdRoleNotFoundException e) {
-    log.error(AuthError.AUTH_ERROR_3.getDescription(), e);
+    log.error(AuthError.AUTH_ERROR_0003.getDescription(), e);
 
     ErrorDTO error = ErrorDTO.builder()
-        .code(AuthError.AUTH_ERROR_3.name())
-        .message(AuthError.AUTH_ERROR_3.getDescription())
+        .code(AuthError.AUTH_ERROR_0003.name())
+        .message(AuthError.AUTH_ERROR_0003.getDescription())
         .status(HttpStatus.NOT_FOUND.value())
         .build();
 
@@ -35,11 +35,11 @@ public class GlobalHandlers {
 
   @ExceptionHandler(RepeatUserException.class)
   public ResponseEntity<ErrorDTO> repeatUserExceptionHandler(RepeatUserException e) {
-    log.error(AuthError.AUTH_ERROR_2.getDescription(), e);
+    log.error(AuthError.AUTH_ERROR_0002.getDescription(), e);
 
     ErrorDTO error = ErrorDTO.builder()
-        .code(AuthError.AUTH_ERROR_2.name())
-        .message(AuthError.AUTH_ERROR_2.getDescription())
+        .code(AuthError.AUTH_ERROR_0002.name())
+        .message(AuthError.AUTH_ERROR_0002.getDescription())
         .status(HttpStatus.BAD_REQUEST.value())
         .build();
 
@@ -48,7 +48,7 @@ public class GlobalHandlers {
 
   @ExceptionHandler(UsernameNotFoundException.class)
   public ResponseEntity<String> usernameNotFoundExceptionHandler(UsernameNotFoundException e) {
-    log.error(AuthError.AUTH_ERROR_1.getDescription(), e);
+    log.error(AuthError.AUTH_ERROR_0001.getDescription(), e);
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
   }
 
@@ -58,10 +58,10 @@ public class GlobalHandlers {
     List<String> errors = e.getBindingResult().getFieldErrors().stream().map(
         DefaultMessageSourceResolvable::getDefaultMessage).toList();
 
-    log.error(AuthError.AUTH_ERROR_4.getDescription(), e);
+    log.error(AuthError.AUTH_ERROR_0004.getDescription(), e);
     ErrorDTO error = ErrorDTO.builder()
-        .code(AuthError.AUTH_ERROR_4.name())
-        .message(AuthError.AUTH_ERROR_4.getDescription())
+        .code(AuthError.AUTH_ERROR_0004.name())
+        .message(AuthError.AUTH_ERROR_0004.getDescription())
         .status(HttpStatus.BAD_REQUEST.value())
         .build();
 
