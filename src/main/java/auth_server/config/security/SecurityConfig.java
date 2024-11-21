@@ -80,6 +80,7 @@ public class SecurityConfig {
         .authorizeHttpRequests(authorize -> authorize
             .requestMatchers("/api/v1/auths/register",
                 "/api/v1/auths/exchange-token",
+                "/api/v1/auths/exchange-refresh-token",
                 "/error",
                 "/swagger-ui/**",
                 "/v3/api-docs",
