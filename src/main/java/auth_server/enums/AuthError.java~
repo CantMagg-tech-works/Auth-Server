@@ -11,8 +11,7 @@ public enum AuthError {
   AUTH_ERROR_0003("Role not found", "Role error, no role found in database."),
   AUTH_ERROR_0004("Validation error.",
       "The request contains validation errors. Review the fields and correct the errors indicated below."),
-  AUTH_ERROR_0005("Token exchange error.","Error when exchanging authorization code for token."),
-  AUTH_ERROR_0006("Refresh Token exchange error.", "Error when exchanging refresh token for token.");
+  AUTH_ERROR_0005("Token exchange error.","Error when exchanging authorization code for token.");
 
   private final String useCase;
   private final String description;
