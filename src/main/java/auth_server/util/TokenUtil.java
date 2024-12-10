@@ -1,6 +1,7 @@
 package auth_server.util;
 
 import auth_server.dtos.response.RefreshTokenResponse;
+import auth_server.dtos.response.TokenResponse;
 import auth_server.enums.AuthError;
 import auth_server.exception.TokenExchangeException;
 import lombok.RequiredArgsConstructor;
@@ -20,43 +21,59 @@ import org.springframework.web.client.RestTemplate;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class RefreshTokenUtil {
+public class TokenUtil {
+
+  @Value("${CLIENT_ID}")
+  private String clientId;
 
   @Value("${TOKEN_URI}")
   private String tokenUri;
 
-  @Value("${CLIENT_ID}")
-  private String clientId;
+  @Value("${REDIRECT_URI}")
+  private String redirectUri;
 
   @Value("${SECRET_KEY}")
   private String clientSecret;
 
   private final RestTemplate restTemplate;
 
-  public RefreshTokenResponse exchangeRefreshTokenForAccessToken(String refreshToken) {
 
+  public TokenResponse exchangeAuthorizationCodeForToken(String code, String codeVerifier) {
+    MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+    params.add("grant_type", "authorization_code");
+    params.add("code", code);
+    params.add("redirect_uri", redirectUri);
+    params.add("code_verifier", codeVerifier);
+
+    return sendTokenRequest(params, TokenResponse.class, AuthError.AUTH_ERROR_0005);
+  }
+
+
+  public RefreshTokenResponse exchangeRefreshTokenForAccessToken(String refreshToken) {
     MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
     params.add("grant_type", "refresh_token");
     params.add("refresh_token", refreshToken);
 
+    return sendTokenRequest(params, RefreshTokenResponse.class, AuthError.AUTH_ERROR_0006);
+  }
+
+  private <T> T sendTokenRequest(MultiValueMap<String, String> params, Class<T> responseType, AuthError error) {
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
     headers.setBasicAuth(clientId, clientSecret);
 
     try {
-
       HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(params, headers);
-      ResponseEntity<RefreshTokenResponse> response = restTemplate.exchange(
+      ResponseEntity<T> response = restTemplate.exchange(
           tokenUri,
           HttpMethod.POST,
           requestEntity,
-          RefreshTokenResponse.class
+          responseType
       );
       return response.getBody();
     } catch (HttpStatusCodeException e) {
-      log.error(AuthError.AUTH_ERROR_0006.getUseCase(),
-          e.getStatusCode(), e.getResponseBodyAsString());
-      throw new TokenExchangeException(AuthError.AUTH_ERROR_0006.getDescription());
+      log.error(error.getUseCase(), e.getStatusCode(), e.getResponseBodyAsString());
+      throw new TokenExchangeException(error.getDescription());
     }
   }
 }

@@ -1,9 +1,11 @@
 package auth_server.handlers;
 
-import auth_server.dtos.response.ErrorDTO;
+import api_commons.response.ErrorCommons;
 import auth_server.dtos.response.ListErrorDTO;
 import auth_server.enums.AuthError;
 import auth_server.exception.IdRoleNotFoundException;
+import auth_server.exception.InvalidCodeException;
+import auth_server.exception.InvalidRefreshTokenException;
 import auth_server.exception.RepeatUserException;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -20,10 +22,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public class GlobalHandlers {
 
   @ExceptionHandler(IdRoleNotFoundException.class)
-  public ResponseEntity<ErrorDTO> idRoleNotFoundHandler(IdRoleNotFoundException e) {
+  public ResponseEntity<ErrorCommons> idRoleNotFoundHandler(IdRoleNotFoundException e) {
     log.error(AuthError.AUTH_ERROR_0003.getDescription(), e);
 
-    ErrorDTO error = ErrorDTO.builder()
+    ErrorCommons error = ErrorCommons.builder()
         .code(AuthError.AUTH_ERROR_0003.name())
         .message(AuthError.AUTH_ERROR_0003.getDescription())
         .status(HttpStatus.NOT_FOUND.value())
@@ -34,10 +36,10 @@ public class GlobalHandlers {
   }
 
   @ExceptionHandler(RepeatUserException.class)
-  public ResponseEntity<ErrorDTO> repeatUserExceptionHandler(RepeatUserException e) {
+  public ResponseEntity<ErrorCommons> repeatUserExceptionHandler(RepeatUserException e) {
     log.error(AuthError.AUTH_ERROR_0002.getDescription(), e);
 
-    ErrorDTO error = ErrorDTO.builder()
+    ErrorCommons error = ErrorCommons.builder()
         .code(AuthError.AUTH_ERROR_0002.name())
         .message(AuthError.AUTH_ERROR_0002.getDescription())
         .status(HttpStatus.BAD_REQUEST.value())
@@ -49,6 +51,7 @@ public class GlobalHandlers {
   @ExceptionHandler(UsernameNotFoundException.class)
   public ResponseEntity<String> usernameNotFoundExceptionHandler(UsernameNotFoundException e) {
     log.error(AuthError.AUTH_ERROR_0001.getDescription(), e);
+
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
   }
 
@@ -59,7 +62,7 @@ public class GlobalHandlers {
         DefaultMessageSourceResolvable::getDefaultMessage).toList();
 
     log.error(AuthError.AUTH_ERROR_0004.getDescription(), e);
-    ErrorDTO error = ErrorDTO.builder()
+    ErrorCommons error = ErrorCommons.builder()
         .code(AuthError.AUTH_ERROR_0004.name())
         .message(AuthError.AUTH_ERROR_0004.getDescription())
         .status(HttpStatus.BAD_REQUEST.value())
@@ -72,6 +75,30 @@ public class GlobalHandlers {
 
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(listError);
 
+  }
+
+  @ExceptionHandler(InvalidCodeException.class)
+  public ResponseEntity<ErrorCommons> invalidCodeExceptionHandler(InvalidCodeException e) {
+    log.error(AuthError.AUTH_ERROR_0005.getDescription(), e);
+    ErrorCommons error = ErrorCommons.builder()
+        .code(AuthError.AUTH_ERROR_0005.name())
+        .message(AuthError.AUTH_ERROR_0005.getDescription())
+        .status(HttpStatus.BAD_REQUEST.value())
+        .build();
+
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+  }
+
+  @ExceptionHandler(InvalidRefreshTokenException.class)
+  public ResponseEntity<ErrorCommons> invalidRefreshTokenExceptionHandler(InvalidRefreshTokenException e) {
+    log.error(AuthError.AUTH_ERROR_0006.getDescription(), e);
+    ErrorCommons error = ErrorCommons.builder()
+        .code(AuthError.AUTH_ERROR_0006.name())
+        .message(AuthError.AUTH_ERROR_0006.getDescription())
+        .status(HttpStatus.BAD_REQUEST.value())
+        .build();
+
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
   }
 
 }

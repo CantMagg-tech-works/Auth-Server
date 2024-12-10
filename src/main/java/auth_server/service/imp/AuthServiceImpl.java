@@ -6,14 +6,16 @@ import auth_server.dtos.response.TokenResponse;
 import auth_server.enums.AuthError;
 import auth_server.enums.AuthMessage;
 import auth_server.exception.IdRoleNotFoundException;
+import auth_server.exception.InvalidCodeException;
+import auth_server.exception.InvalidRefreshTokenException;
 import auth_server.exception.RepeatUserException;
 import auth_server.model.EcUserModel;
 import auth_server.model.UserRoleModel;
 import auth_server.repository.EcUserRepository;
 import auth_server.repository.UserRoleRepository;
+import auth_server.repository.auth.CustomJdbcOAuth2AuthorizationService;
 import auth_server.service.AuthService;
-import auth_server.util.RefreshTokenUtil;
-import auth_server.util.TokenExchangeUtil;
+import auth_server.util.TokenUtil;
 import java.util.Date;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -26,8 +28,8 @@ public class AuthServiceImpl implements AuthService {
   private final EcUserRepository ecUserRepository;
   private final UserRoleRepository userRoleRepository;
   private final PasswordEncoder passwordEncoder;
-  private final TokenExchangeUtil tokenExchangeUtil;
-  private final RefreshTokenUtil refreshTokenUtil;
+  private final TokenUtil tokenUtil;
+  private final CustomJdbcOAuth2AuthorizationService customJdbcOAuth2AuthorizationService;
 
 
   @Override
@@ -58,13 +60,19 @@ public class AuthServiceImpl implements AuthService {
 
   @Override
   public TokenResponse exchangeToken(String code, String codeVerifier) {
-    return tokenExchangeUtil.exchangeAuthorizationCodeForToken(code,
+    if (!customJdbcOAuth2AuthorizationService.isAuthorizationCodeValid(code)) {
+      throw new InvalidCodeException(AuthError.AUTH_ERROR_0007.getDescription());
+    }
+    return tokenUtil.exchangeAuthorizationCodeForToken(code,
         codeVerifier);
   }
 
   @Override
   public RefreshTokenResponse refreshToken(String refreshToken) {
-    return refreshTokenUtil.exchangeRefreshTokenForAccessToken(refreshToken);
+    if (!customJdbcOAuth2AuthorizationService.isRefreshTokenValid(refreshToken)) {
+      throw new InvalidRefreshTokenException(AuthError.AUTH_ERROR_0008.getDescription());
+    }
+    return tokenUtil.exchangeRefreshTokenForAccessToken(refreshToken);
   }
 
 }

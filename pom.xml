@@ -98,6 +98,11 @@
 			<version>10.18.0</version>
 			<scope>runtime</scope>
 		</dependency>
+    <dependency>
+      <groupId>api-commons</groupId>
+      <artifactId>api-commons</artifactId>
+      <version>5.0.0-SNAPSHOT</version>
+    </dependency>
 	</dependencies>
 
 	<build>

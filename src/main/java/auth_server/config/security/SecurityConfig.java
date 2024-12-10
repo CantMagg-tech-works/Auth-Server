@@ -1,5 +1,6 @@
 package auth_server.config.security;
 
+import auth_server.repository.auth.CustomJdbcOAuth2AuthorizationService;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
@@ -9,6 +10,7 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
+import java.time.Duration;
 import java.util.UUID;
 import javax.sql.DataSource;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +30,6 @@ import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.server.authorization.JdbcOAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.client.JdbcRegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
@@ -37,6 +38,7 @@ import org.springframework.security.oauth2.server.authorization.config.annotatio
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
 import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
+import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
@@ -117,6 +119,11 @@ public class SecurityConfig {
           .scope(OidcScopes.OPENID)
           .scope(OidcScopes.PROFILE)
           .scope("offline_access")
+          .tokenSettings(TokenSettings.builder()
+              .accessTokenTimeToLive(Duration.ofMinutes(10))
+              .refreshTokenTimeToLive(Duration.ofDays(1))
+              .reuseRefreshTokens(false)
+              .build())
           .clientSettings(ClientSettings.builder()
               .requireAuthorizationConsent(false)
               .requireProofKey(true)
@@ -170,11 +177,12 @@ public class SecurityConfig {
 
 
   @Bean
-  public OAuth2AuthorizationService oAuth2AuthorizationService(
+  public CustomJdbcOAuth2AuthorizationService customJdbcOAuth2AuthorizationService(
       DataSource dataSource,
       RegisteredClientRepository registeredClientRepository) {
 
     JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-    return new JdbcOAuth2AuthorizationService(jdbcTemplate, registeredClientRepository);
+    return new CustomJdbcOAuth2AuthorizationService(jdbcTemplate, registeredClientRepository);
   }
+
 }
