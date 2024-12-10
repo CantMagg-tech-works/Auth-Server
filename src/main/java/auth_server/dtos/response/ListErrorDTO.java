@@ -1,5 +1,6 @@
 package auth_server.dtos.response;
 
+import api_commons.response.ErrorCommons;
 import java.io.Serializable;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -13,6 +14,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ListErrorDTO implements Serializable {
 
-  private ErrorDTO error;
+  private ErrorCommons error;
   private List<String> errors;
 }
