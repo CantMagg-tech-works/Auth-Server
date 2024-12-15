@@ -9,6 +9,7 @@ import auth_server.exception.IdRoleNotFoundException;
 import auth_server.exception.InvalidCodeException;
 import auth_server.exception.InvalidRefreshTokenException;
 import auth_server.exception.RepeatUserException;
+import auth_server.infrastructure.EventPublisher;
 import auth_server.model.EcUserModel;
 import auth_server.model.UserRoleModel;
 import auth_server.repository.EcUserRepository;
@@ -18,9 +19,11 @@ import auth_server.service.AuthService;
 import auth_server.util.TokenUtil;
 import java.util.Date;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
@@ -30,6 +33,7 @@ public class AuthServiceImpl implements AuthService {
   private final PasswordEncoder passwordEncoder;
   private final TokenUtil tokenUtil;
   private final CustomJdbcOAuth2AuthorizationService customJdbcOAuth2AuthorizationService;
+  private final EventPublisher eventPublisher;
 
 
   @Override

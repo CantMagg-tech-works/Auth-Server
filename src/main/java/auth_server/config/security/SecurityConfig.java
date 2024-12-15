@@ -83,6 +83,7 @@ public class SecurityConfig {
             .requestMatchers("/api/v1/auths/register",
                 "/api/v1/auths/exchange-token",
                 "/api/v1/auths/exchange-refresh-token",
+                "/api/v1/auths/otp",
                 "/error",
                 "/swagger-ui/**",
                 "/v3/api-docs",
