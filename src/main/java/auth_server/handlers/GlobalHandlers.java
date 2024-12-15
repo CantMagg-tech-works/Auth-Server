@@ -3,6 +3,7 @@ package auth_server.handlers;
 import api_commons.response.ErrorCommons;
 import auth_server.dtos.response.ListErrorDTO;
 import auth_server.enums.AuthError;
+import auth_server.exception.ActiveOTPException;
 import auth_server.exception.IdRoleNotFoundException;
 import auth_server.exception.InvalidCodeException;
 import auth_server.exception.InvalidRefreshTokenException;
@@ -101,4 +102,15 @@ public class GlobalHandlers {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
   }
 
+  @ExceptionHandler(ActiveOTPException.class)
+  public ResponseEntity<ErrorCommons> activeOTPExceptionHandler(ActiveOTPException e) {
+    log.error(AuthError.AUTH_ERROR_0009.getDescription(), e);
+    ErrorCommons error = ErrorCommons.builder()
+        .code(AuthError.AUTH_ERROR_0009.name())
+        .message(AuthError.AUTH_ERROR_0009.getDescription())
+        .status(HttpStatus.BAD_REQUEST.value())
+        .build();
+
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+  }
 }

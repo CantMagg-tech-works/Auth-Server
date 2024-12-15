@@ -45,3 +45,13 @@ logging:
 flyway:
   schemas: auth-server
   table: flyway_schema_history_auth-server
+
+app:
+  kafka:
+    topic-name: send-otp
+
+kafka:
+  bootstrap-servers: localhost:29092 # Cambiar según la configuración del clúster
+  producer:
+    key-serializer: org.apache.kafka.common.serialization.StringSerializer
+    value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
